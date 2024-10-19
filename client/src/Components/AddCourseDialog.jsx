@@ -12,7 +12,8 @@ import {
     ListItem,
     ListItemText,
     ListItemIcon,
-    Typography
+    Typography,
+    CircularProgress
 } from '@mui/material';
 import api from '../Common/api';
 import { toast } from 'react-toastify';
@@ -25,6 +26,7 @@ const AddCourseDialog = ({ open, onClose }) => {
     const [courseImage, setCourseImage] = useState('');
     const [selectedVideos, setSelectedVideos] = useState([]);
     const [mediaList, setMediaList] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const fetchCategories = async () => {
         try {
@@ -54,6 +56,7 @@ const AddCourseDialog = ({ open, onClose }) => {
     }, [open]);
 
     const handleAddCourse = async () => {
+        setLoading(true);
         try {
             const formData = new FormData();
             formData.append("courseName", courseName);
@@ -69,6 +72,8 @@ const AddCourseDialog = ({ open, onClose }) => {
         } catch (err) {
             console.error(err);
             toast.error("Failed to add course!");
+        } finally {
+            setLoading(false); // Set loading to false when API call finishes
         }
     };
 
@@ -92,6 +97,7 @@ const AddCourseDialog = ({ open, onClose }) => {
                     margin="dense"
                     value={courseName}
                     onChange={(e) => setCourseName(e.target.value)}
+                    disabled={loading} // Disable input when loading
                 />
 
                 <TextField
@@ -101,6 +107,7 @@ const AddCourseDialog = ({ open, onClose }) => {
                     margin="dense"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
+                    disabled={loading} // Disable input when loading
                 >
                     {categories.map((cat) => (
                         <MenuItem key={cat._id} value={cat._id}>
@@ -115,6 +122,7 @@ const AddCourseDialog = ({ open, onClose }) => {
                     margin="dense"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
+                    disabled={loading} // Disable input when loading
                 />
 
                 <TextField
@@ -123,6 +131,7 @@ const AddCourseDialog = ({ open, onClose }) => {
                     margin="dense"
                     label="Course Image"
                     onChange={(e) => setCourseImage(e.target.files[0])}
+                    disabled={loading} // Disable file input when loading
                     InputLabelProps={{
                         shrink: true,
                     }}
@@ -137,6 +146,7 @@ const AddCourseDialog = ({ open, onClose }) => {
                             key={media._id}
                             button={"true"}
                             onClick={() => handleVideoSelect(media._id)}
+                            disabled={loading} // Disable video selection when loading
                         >
                             <ListItemIcon>
                                 <Checkbox
@@ -152,11 +162,15 @@ const AddCourseDialog = ({ open, onClose }) => {
                 </List>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="primary">
+                <Button onClick={onClose} color="primary" disabled={loading}>
                     Cancel
                 </Button>
-                <Button onClick={handleAddCourse} color="primary" disabled={!courseName || !category || !description || !courseImage || selectedVideos.length === 0}>
-                    Add Course
+                <Button 
+                    onClick={handleAddCourse} 
+                    color="primary" 
+                    disabled={!courseName || !category || !description || !courseImage || selectedVideos.length === 0 || loading}
+                >
+                    {loading ? <CircularProgress size={24} /> : "Add Course"}
                 </Button>
             </DialogActions>
         </Dialog>

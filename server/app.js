@@ -13,7 +13,9 @@ const app = express();
 
 dotenv.config();
 connectDb();
-app.use(cors());
+app.use(cors({
+    origin : "https://online-learning-app-eight.vercel.app"
+}));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
