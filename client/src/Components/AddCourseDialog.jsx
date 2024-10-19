@@ -1,0 +1,166 @@
+import React, { useEffect, useState } from 'react';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    Button,
+    MenuItem,
+    Checkbox,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemIcon,
+    Typography
+} from '@mui/material';
+import api from '../Common/api';
+import { toast } from 'react-toastify';
+
+const AddCourseDialog = ({ open, onClose }) => {
+    const [courseName, setCourseName] = useState('');
+    const [category, setCategory] = useState('');
+    const [categories, setCategories] = useState([]);
+    const [description, setDescription] = useState('');
+    const [courseImage, setCourseImage] = useState('');
+    const [selectedVideos, setSelectedVideos] = useState([]);
+    const [mediaList, setMediaList] = useState([]);
+
+    const fetchCategories = async () => {
+        try {
+            const res = await api.getCategories();
+            setCategories(res.data.data); 
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to fetch categories");
+        }
+    };
+
+    const fetchMedia = async () => {
+        try {
+            const res = await api.listMedia();
+            setMediaList(res.data.data); 
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to fetch media");
+        }
+    };
+
+    useEffect(() => {
+        if (open) {
+            fetchCategories();
+            fetchMedia();
+        }
+    }, [open]);
+
+    const handleAddCourse = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("courseName", courseName);
+            formData.append("category", category);
+            formData.append("description", description);
+            formData.append("file", courseImage);
+
+            selectedVideos.forEach(videoId => formData.append('video', videoId));
+
+            await api.addCourse(formData);
+            toast.success("Course added successfully!");
+            onClose();
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to add course!");
+        }
+    };
+
+    const handleVideoSelect = (videoId) => {
+        setSelectedVideos(prevSelected => {
+            if (prevSelected.includes(videoId)) {
+                return prevSelected.filter(id => id !== videoId);
+            } else {
+                return [...prevSelected, videoId];
+            }
+        });
+    };
+
+    return (
+        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+            <DialogTitle>Add New Course</DialogTitle>
+            <DialogContent>
+                <TextField
+                    label="Course Name"
+                    fullWidth
+                    margin="dense"
+                    value={courseName}
+                    onChange={(e) => setCourseName(e.target.value)}
+                />
+
+                <TextField
+                    label="Category"
+                    select
+                    fullWidth
+                    margin="dense"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                >
+                    {categories.map((cat) => (
+                        <MenuItem key={cat._id} value={cat._id}>
+                            {cat.name}
+                        </MenuItem>
+                    ))}
+                </TextField>
+
+                <TextField
+                    label="Description"
+                    fullWidth
+                    margin="dense"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                />
+
+                <TextField
+                    type="file"
+                    fullWidth
+                    margin="dense"
+                    label="Course Image"
+                    onChange={(e) => setCourseImage(e.target.files[0])}
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                />
+
+                <Typography variant="h6" style={{ marginTop: '20px' }}>
+                    Select Videos for the Course:
+                </Typography>
+                <List>
+                    {mediaList.map((media) => (
+                        <ListItem
+                            key={media._id}
+                            button={"true"}
+                            onClick={() => handleVideoSelect(media._id)}
+                        >
+                            <ListItemIcon>
+                                <Checkbox
+                                    checked={selectedVideos.includes(media._id)}
+                                />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={media.title}
+                                secondary={<img src={media.bannerImage} alt={media.title} style={{ width: 100, height: 60 }} />}
+                            />
+                        </ListItem>
+                    ))}
+                </List>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose} color="primary">
+                    Cancel
+                </Button>
+                <Button onClick={handleAddCourse} color="primary" disabled={!courseName || !category || !description || !courseImage || selectedVideos.length === 0}>
+                    Add Course
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+};
+
+export default AddCourseDialog;
