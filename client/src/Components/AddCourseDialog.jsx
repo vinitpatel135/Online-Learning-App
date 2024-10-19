@@ -56,8 +56,8 @@ const AddCourseDialog = ({ open, onClose }) => {
     }, [open]);
 
     const handleAddCourse = async () => {
-        setLoading(true);
         try {
+            setLoading(true);
             const formData = new FormData();
             formData.append("courseName", courseName);
             formData.append("category", category);
@@ -68,6 +68,7 @@ const AddCourseDialog = ({ open, onClose }) => {
 
             await api.addCourse(formData);
             toast.success("Course added successfully!");
+            setLoading(false);
             onClose();
         } catch (err) {
             console.error(err);

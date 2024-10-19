@@ -15,6 +15,7 @@ import {
     Typography,
     TableContainer,
     Paper,
+    CircularProgress,
 } from '@mui/material';
 import { toast } from 'react-toastify';
 import api from '../Common/api';
@@ -24,6 +25,7 @@ const CategoryDialog = ({ open, onClose, onCategoryAdded }) => {
     const [loading, setLoading] = useState(true);
     const [newCategory, setNewCategory] = useState('');
     const [newAlias, setNewAlias] = useState('');
+    const [loader, setLoader] = useState(false);
 
     const fetchCategories = async () => {
         try {
@@ -45,14 +47,17 @@ const CategoryDialog = ({ open, onClose, onCategoryAdded }) => {
 
     const handleAddCategory = async () => {
         try {
+            setLoader(true)
             const data = { name: newCategory, alias: newAlias };
             await api.addCategory(data);
             toast.success("Category added successfully!");
+            setLoader(false)
             fetchCategories();
             onCategoryAdded();
             setNewCategory('');
             setNewAlias('');
         } catch (err) {
+            setLoader(false)
             console.error(err);
             toast.error("Failed to add category!");
         }
@@ -109,7 +114,7 @@ const CategoryDialog = ({ open, onClose, onCategoryAdded }) => {
                     Close
                 </Button>
                 <Button onClick={handleAddCategory} color="primary" disabled={!newCategory || !newAlias}>
-                    Add
+                    {loader ? <CircularProgress size={24} /> : "Add"}
                 </Button>
             </DialogActions>
         </Dialog>

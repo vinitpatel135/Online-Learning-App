@@ -15,6 +15,7 @@ import {
     TableContainer,
     Paper,
     TextField,
+    CircularProgress,
 } from '@mui/material';
 import { toast } from 'react-toastify';
 import api from '../Common/api';
@@ -22,6 +23,7 @@ import api from '../Common/api';
 const MediaDialog = ({ open, onClose, onMediaAdded }) => {
     const [media, setMedia] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loader, setLoader] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [newBannerImage, setNewBannerImage] = useState(null); // Updated to store file
     const [newVideoPath, setNewVideoPath] = useState(null); // Updated to store file
@@ -46,6 +48,7 @@ const MediaDialog = ({ open, onClose, onMediaAdded }) => {
 
     const handleAddMedia = async () => {
         try {
+            setLoader(true)
             const formData = new FormData();
             formData.append('title', newTitle);
             if (newBannerImage) {
@@ -57,12 +60,14 @@ const MediaDialog = ({ open, onClose, onMediaAdded }) => {
             console.log(formData)
             await api.addMedia(formData);
             toast.success("Media added successfully!");
+            setLoader(false)
             fetchMedia(); 
             onMediaAdded(); 
             setNewTitle('');
             setNewBannerImage(null);
             setNewVideoPath(null);
         } catch (err) {
+            setLoader(false)
             console.error(err);
             toast.error("Failed to add media!");
         }
@@ -141,7 +146,7 @@ const MediaDialog = ({ open, onClose, onMediaAdded }) => {
                     color="primary"
                     disabled={!newTitle || !newBannerImage || !newVideoPath}
                 >
-                    Add
+                    {loader ? <CircularProgress size={24} /> : "Add"}
                 </Button>
             </DialogActions>
         </Dialog>
