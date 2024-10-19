@@ -25,8 +25,8 @@ import { useNavigate } from 'react-router-dom';
 const AdminDashboard = ({Auth}) => {
     const [users, setUsers] = useState([]);
     const [courses, setCourses] = useState([]);
-    const [loadingUsers, setLoadingUsers] = useState(true);
-    const [loadingCourses, setLoadingCourses] = useState(true);
+    const [loadingUsers, setLoadingUsers] = useState(false);
+    const [loadingCourses, setLoadingCourses] = useState(false);
     const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
     const [openUserCoursesDialog, setOpenUserCoursesDialog] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
