@@ -4,7 +4,6 @@ const { jwtDecode } = require("jwt-decode")
 module.exports = {
     // baseURL : "http://localhost:5000",
     // baseURL : "http://192.168.29.33:5000",
-    // baseURL : "http://api.mevadakalgitea.scriptscholer.in",
 
     httpSuccess: "Success",
     httpErrors: {
